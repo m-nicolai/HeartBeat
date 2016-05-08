@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Main.qml</file>
+        <file>ScanView.qml</file>
+        <file>MonitoringView.qml</file>
+        <file>heartsensor.cpp</file>
+        <file>heartsensor.h</file>
+        <file>main.cpp</file>
+    </qresource>
+</RCC>

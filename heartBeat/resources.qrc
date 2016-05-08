@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Main.qml</file>
+        <file>MonitoringView.qml</file>
+        <file>ScanView.qml</file>
+        <file>items/HeartBeatBox.qml</file>
+        <file>items/BatteryBox.qml</file>
+    </qresource>
+</RCC>

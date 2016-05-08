@@ -1,0 +1,17 @@
+{
+    "name": "heartbeat.gulf00",
+    "description": "description of heartBeat",
+    "architecture": "@CLICK_ARCH@",
+    "title": "heartBeat",
+    "hooks": {
+        "heartBeat": {
+            "apparmor": "heartBeat/heartBeat.apparmor",
+            "desktop":  "heartBeat/heartBeat.desktop"
+        }
+    },
+    "version": "0.1",
+    "maintainer": "Matthijs Nicolai <matthijs@rodspot.nl>",
+    "framework" : "ubuntu-sdk-15.04"
+}
+
+
