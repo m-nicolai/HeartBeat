@@ -23,6 +23,7 @@
 #include <QQmlContext>
 
 #include "devicemanager.h"
+#include "heartratemonitor.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,8 +32,10 @@ int main(int argc, char *argv[])
     QQuickView* view = new QQuickView();
 
     DeviceManager deviceManager;
+    HeartRateMonitor heartRateMonitor;
     deviceManager.setParent(view);
     view->rootContext()->setContextProperty("deviceManager", &deviceManager);
+    view->rootContext()->setContextProperty("heartRateMonitor", &heartRateMonitor);
     view->setSource(QUrl(QStringLiteral("qrc:///Main.qml")));
     view->setResizeMode(QQuickView::SizeRootObjectToView);
     view->show();

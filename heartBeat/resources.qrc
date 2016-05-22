@@ -5,5 +5,9 @@
         <file>ScanView.qml</file>
         <file>items/HeartBeatBox.qml</file>
         <file>items/BatteryBox.qml</file>
+        <file>items/DoubleSlider.qml</file>
+        <file>sounds/short_beep.wav</file>
+        <file>sounds/long_beep.wav</file>
+        <file>icons/selector.png</file>
     </qresource>
 </RCC>

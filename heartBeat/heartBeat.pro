@@ -8,7 +8,8 @@ QT += qml quick bluetooth
 SOURCES += main.cpp \
     heartsensor.cpp \
     devicemanager.cpp \
-    deviceinfo.cpp
+    deviceinfo.cpp \
+    heartratemonitor.cpp
 
 RESOURCES += \
     resources.qrc
@@ -47,11 +48,13 @@ INSTALLS+=target
 HEADERS += \
     heartsensor.h \
     devicemanager.h \
-    deviceinfo.h
+    deviceinfo.h \
+    heartratemonitor.h
 
 DISTFILES += \
     ScanView.qml \
     MonitoringView.qml \
     items/HeartBeatBox.qml \
-    items/BatteryBox.qml
+    items/BatteryBox.qml \
+    items/DoubleSlider.qml
 

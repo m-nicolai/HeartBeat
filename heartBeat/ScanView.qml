@@ -22,9 +22,11 @@ import Ubuntu.Components 1.3
 
 Item {
 
+
     Page {
         title: i18n.tr("heartBeat")
         head.title: "Select sensor"
+
 
         Component {
             id: dev
@@ -87,8 +89,9 @@ Item {
             Button {
                 id: clickButton
                 objectName: "button"
-                width: parent.width
-
+                width: parent.width * 0.8
+                height: units.gu(8)
+                anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
                 text: i18n.tr("Scan")
 

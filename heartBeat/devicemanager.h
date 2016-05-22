@@ -26,6 +26,7 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
 #include <QLowEnergyController>
+#include <QBluetoothLocalDevice>
 #include <QDebug>
 
 #include "heartsensor.h"

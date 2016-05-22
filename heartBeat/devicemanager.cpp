@@ -22,11 +22,16 @@
 
 DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
 {
-    message_ = QString("");
-    connect(&agent_, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this, SLOT(addDevice(QBluetoothDeviceInfo)));
-    connect(&agent_, SIGNAL(finished()), this, SLOT(endScan()));
-    sensor_ = NULL;
-    control_ = NULL;
+  message_ = QString("");
+  connect(&agent_, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+          this, SLOT(addDevice(QBluetoothDeviceInfo)));
+  connect(&agent_, SIGNAL(finished()),
+          this, SLOT(endScan()));
+  connect(&agent_, SIGNAL(error(QBluetoothDeviceDiscoveryAgent::Error)),
+          this, SLOT(onError(QLowEnergyController::Error)));
+
+  sensor_ = NULL;
+  control_ = NULL;
 }
 
 
@@ -34,93 +39,105 @@ DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
 void
 DeviceManager::scanForDevices()
 {
-    qDebug() << "scan triggered";
+  QBluetoothLocalDevice d;
+  if (d.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
+  {
+    setStatusMessage("Please switch on bluetooth");
+  }
+  else
+  {
     agent_.start();
     setStatusMessage("Scanning...");
+  }
 }
 
 void
 DeviceManager::addDevice(QBluetoothDeviceInfo dev)
 {
+  if(dev.coreConfigurations() &
+     QBluetoothDeviceInfo::LowEnergyCoreConfiguration)
+  {
     DeviceInfo *device = new DeviceInfo(dev);
+
     devices_.append(device);
     emit deviceListChanged();
+  }
 }
 
 void
 DeviceManager::endScan()
 {
-    if(devices_.isEmpty())
-        setStatusMessage("No devices found");
-    else
-        setStatusMessage("Finished scan");
+  if(devices_.isEmpty())
+    setStatusMessage("No devices found");
+  else
+    setStatusMessage("Finished scan");
 }
 
 
 QString
 DeviceManager::getStatusMessage()
 {
-    return message_;
+  return message_;
 }
 
 
 void
 DeviceManager::setStatusMessage(const QString string)
 {
-    message_ = string;
-    emit statusMessageChanged();
+  message_ = string;
+  emit statusMessageChanged();
 }
 
 
 QVariant
 DeviceManager::sensor()
 {
-    return QVariant::fromValue(sensor_);
+  return QVariant::fromValue(sensor_);
 }
 
 
 QVariant
 DeviceManager::deviceList()
 {
-    return QVariant::fromValue(devices_);
+  return QVariant::fromValue(devices_);
 }
 
 void
 DeviceManager::connectToDevice(const QString &address)
 {
-    bool foundDevice = false;
-    for (int i = 0; i < devices_.length(); i++)
+  bool foundDevice = false;
+  for (int i = 0; i < devices_.length(); i++)
+  {
+    if (static_cast<DeviceInfo*>(devices_.at(i))->getAddress() == address)
     {
-        if (static_cast<DeviceInfo*>(devices_.at(i))->getAddress() == address)
-        {
-            foundDevice = true;
-            activeDevice_.setDevice(((DeviceInfo*)devices_.at(i))->getDevice());
-            break;
-        }
+      foundDevice = true;
+      activeDevice_.setDevice(((DeviceInfo*)devices_.at(i))->getDevice());
+      break;
     }
-    if (foundDevice)
-        qDebug() << "whoohoo!";
-    else
-        qDebug() << "wheehee!";
+  }
+  if (foundDevice)
+    qDebug() << "whoohoo!";
+  else
+    qDebug() << "wheehee!";
 
-    if(sensor_)
-    {
-        delete sensor_;
-        sensor_ = 0;
-    }
+  if(sensor_)
+  {
+    delete sensor_;
+    sensor_ = 0;
+  }
 
-    sensor_ = new HeartSensor(activeDevice_.getDevice().address(), this);
+  sensor_ = new HeartSensor(activeDevice_.getDevice().address(), this);
 
-    static_cast<QQuickView*>(this->parent())->rootContext()->setContextProperty("heartRateSensor", sensor_);
+  static_cast<QQuickView*>(this->parent())->rootContext()->setContextProperty("heartRateSensor", sensor_);
 
-    emit heartRateSensorConnected();
+  emit heartRateSensorConnected();
 }
 
 
 void
 DeviceManager::onError(QLowEnergyController::Error newError)
 {
-    // notify user and abort action
+  // notify user and abort action
   qDebug() << newError;
 }
 
