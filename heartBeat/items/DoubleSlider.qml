@@ -21,6 +21,7 @@ import QtQuick 2.0
 import Ubuntu.Components 1.3
 
 Rectangle {
+    id: doubleSlider
     property int maxValue: 220
     property int minValue: 60
     property int pointerHeight: units.gu(3)
@@ -35,14 +36,25 @@ Rectangle {
         anchors.centerIn: parent
         width: units.gu(4)
         height: parent.height*0.8
-        color: "grey"
+        border.width: units.gu(0.3)
+        border.color: "#555555"
+        radius: units.gu(1)
+
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#FF0000" }
+            GradientStop { position: 1.0; color: "#00FF00" }
+        }
     }
     Rectangle {
         id: upperLimitSelector
         anchors.right: verticalBar.left
         width: units.gu(4)
         height: pointerHeight
-        color: "grey"
+        Image {
+            anchors.fill: parent
+            source: "../icons/selector.png"
+        }
 
 
         MouseArea {
@@ -51,7 +63,7 @@ Rectangle {
             drag.axis: Drag.YAxis
             drag.minimumY: verticalBar.y - (pointerHeight/2)
             drag.maximumY: verticalBar.y + verticalBar.height - (pointerHeight/2)
-
+            enabled: doubleSlider.enabled
         }
         onYChanged: {
             if (upperLimitSelector.y >= lowerLimitSelector.y-1) {
@@ -67,7 +79,11 @@ Rectangle {
         anchors.right: verticalBar.left
         width: units.gu(4)
         height: pointerHeight
-        color: "grey"
+
+        Image {
+            anchors.fill: parent
+            source: "../icons/selector.png"
+        }
 
         y: verticalBar.y + (verticalBar.height*0.6)
 
@@ -77,6 +93,7 @@ Rectangle {
             drag.axis: Drag.YAxis
             drag.minimumY: verticalBar.y - (pointerHeight/2)
             drag.maximumY: verticalBar.y + verticalBar.height - (pointerHeight/2)
+            enabled: doubleSlider.enabled
         }
 
         onYChanged: {

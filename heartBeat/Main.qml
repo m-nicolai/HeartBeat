@@ -22,6 +22,8 @@ import Ubuntu.Components 1.3
 
 
 MainView {
+    automaticOrientation: false
+
     // objectName for functional testing purposes (autopilot-qt5)
     objectName: "mainView"
 

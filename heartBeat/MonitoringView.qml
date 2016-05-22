@@ -18,12 +18,24 @@
 */
 
 import QtQuick 2.0
+import QtMultimedia 5.6
 import Ubuntu.Components 1.3
 import "./items"
 
 Item {
 
     property var sensor: deviceManager.sensor
+
+    Connections {
+        target: heartRateMonitor
+        onUpperLimitExceeded: { alarmGenerator.playUpperAlarm(); }
+        onLowerLimitExceeded: { alarmGenerator.playLowerAlarm(); }
+    }
+
+    Connections {
+        target: sensor
+        onHeartRateChanged: { heartRateMonitor.setHeartRate(sensor.heartRate); }
+    }
 
     Page {
         title: i18n.tr("heartBeat")
@@ -42,8 +54,8 @@ Item {
 
 
             Rectangle {
-                id: deviceList
-                objectName: "deviceList"
+                id: monitoringView
+                objectName: "monitoringView"
                 anchors.top: parent.top
                 anchors.bottom: clickButton.top
                 width: parent.width
@@ -64,37 +76,132 @@ Item {
                             anchors.fill: parent
                             HeartBeatBox {heartRate: sensor.heartRate}
                             BatteryBox {soc: sensor.batterySoc}
-//                            Rectangle {
-//                                width: parent.width / 2
-//                                height: parent.height
-//                                color: "red"
-//                            }
-//                            Rectangle {
-//                                width: parent.width/2
-//                                height: parent.height
-//                                color: "orange"
-//                            }
+                        }
+                    }
+                    Rectangle {
+                        width: parent.width
+                        height: parent.height-infoBar.height
+                        DoubleSlider {
+                            id: rangeSelector
+                            height: parent.height
+                            width: parent.width/2
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            onUpperLimitChanged: heartRateMonitor.setUpperLimit(upperLimit)
+                            onLowerLimitChanged: heartRateMonitor.setLowerLimit(lowerLimit)
+                        }
+
+                        Rectangle {
+                            height: parent.height/2
+                            width: parent.width/2
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+
+                            Text {
+                                id: upperLimitText
+                                anchors.centerIn: parent
+                                font.pointSize: units.gu(1)
+                                text: "upper limit:<br/>" + rangeSelector.upperLimit
+                            }
+                        }
+
+                        Rectangle {
+                            height: parent.height/2
+                            width: parent.width/2
+                            anchors.bottom: parent.bottom
+                            anchors.right: parent.right
+                            Text {
+                                id: lowerLimitText
+                                anchors.centerIn: parent
+                                font.pointSize: units.gu(1)
+                                text: "lower limit:<br/>" + rangeSelector.lowerLimit
+                            }
                         }
                     }
 
+                    //height: units.gu(20)
                 }
-
-                //height: units.gu(20)
             }
 
             Button {
                 id: clickButton
                 objectName: "button"
-                width: parent.width
-
+                width: parent.width * 0.8
+                height: units.gu(8)
+                anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
                 text: i18n.tr("Start")
 
-                onClicked: {
-                    clickButton.text = "Stop"
+                SoundEffect {
+                    id: playSound
+                    source: "sounds/short_beep.wav"
                 }
+
+                onClicked: {
+                    if (clickButton.text === "Start") {
+                        // get range from double slider
+                        console.log(rangeSelector.upperLimit);
+                        console.log(rangeSelector.lowerLimit);
+
+                        rangeSelector.enabled = false;
+                        //playSound.play();
+                        //alarmGenerator.playUpperAlarm();
+                        heartRateMonitor.setLowerLimit(rangeSelector.lowerLimit);
+                        heartRateMonitor.setUpperLimit(rangeSelector.upperLimit);
+                        heartRateMonitor.start();
+
+                        clickButton.text = "Stop"
+                    } else {
+                        heartRateMonitor.stop();
+                        rangeSelector.enabled = true;
+                        clickButton.text = "Start"
+                    }
+                }
+            }
+
+            Item {
+                id: alarmGenerator
+                property bool running: false
+                property int repeats: 2
+
+                Item {
+                    id: internal
+                    property int repeatsLeft: 0
+                }
+
+                function playLowerAlarm() {
+                    playSound.play();  // play single beep
+                }
+
+                function playUpperAlarm() {
+                    repeats = 2;
+                    running = true;
+                    playSound.play();
+                    repeatTimer.start();
+                }
+
+                Timer {
+                    id: repeatTimer
+                    interval: 350
+
+
+                    onRunningChanged: {
+                        if (running === true) {
+                            internal.repeatsLeft = alarmGenerator.repeats-1;
+                        }
+                    }
+
+                    onTriggered: {
+                        playSound.play();
+                        internal.repeatsLeft--;
+                        if (internal.repeatsLeft === 0) {
+                            running = false;
+                            repeatTimer.stop();
+                        }
+                    }
+                }
+
             }
         }
     }
 }
-
